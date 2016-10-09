@@ -1,0 +1,159 @@
+//Java program implementing Adams Fourth-Order Predictor-Corrector Method.
+/* This program will approximate the solution of the initial-value problem y' = -5y + 6e^{t}
+with t between 0 and 1, y(0) = 2, and h = 0.1.  The actual solution is y(t) = e^{-5} + e^{t}. */
+
+import java.text.DecimalFormat;
+import java.lang.Math;
+
+public class Adams_Predictor_Corrector
+{
+   public static void main(String[] args)
+   {
+      //Step size h.
+      double h = 0.1;  
+      
+      //Endpoints a and b from the range of t.
+      double a = 0.0;
+      double b = 1.0;
+      
+      //Declare and initialize current intervals.
+      double i = 0.0;
+      double j = 0.0;
+      
+      //Number of intervals.
+      double n = (b-a) / h;
+      
+      //Declare and initialize approximations.
+      double w0 = 2;
+      double w1 = 0.0;
+      double w2 = 0.0;
+      double w3 = 0.0;
+      
+      //Declare and initialize local truncation errors.
+      double t0 = a;
+      double t1 = 0.0;
+      double t2 = 0.0;
+      double t3 = 0.0;
+      
+      //The 'f' variables are the approximations of the function you want to find.
+      double f0 = -5 * (w0) + 6 * Math.pow(Math.E,t0);
+      double f1 = 0.0;
+      double f2 = 0.0;
+      double f3 = 0.0;
+      
+      
+      //The 'w' variables are the out put of the function approximations at t.
+      double wBefore = w0;
+      
+      //The variable and while loop run a Runge-Kutta fourth-order method.
+      while (i < 3.0)
+      {
+         double ti = t0 + i * h;
+         
+         //The K values are used to set up an approximation.
+         double K1 = h * (-5 * (wBefore) + 6 * Math.pow(Math.E,(ti)));
+         double K2 = h * (-5 * (wBefore + K1/2) + 6 * Math.pow(Math.E,(ti + h/2)));
+         double K3 = h * (-5 * (wBefore + K2/2) + 6 * Math.pow(Math.E,(ti + h/2)));
+         double K4 = h * (-5 * (wBefore + K3) + 6 * Math.pow(Math.E,(ti + h)));
+         
+         double wNext = wBefore + (K1 + 2*K2 + 2*K3 + K4) / 6;
+         System.out.println("wNext = " + wNext + ", wBefore = " + wBefore + ".");
+         System.out.println("ti = " + ti  + ".");
+         wBefore = wNext;
+         
+         if (i == 0)
+         {
+            w1 = wBefore;
+            t1 = ti + h;
+            f1 = -5 * (w1) + 6 * Math.pow(Math.E,t1);
+         }
+         else
+         {
+            w1 = w1;
+            t1 = t1;
+            f1 = f1;
+         }
+         
+         if (i == 1)
+         {
+            w2 = wBefore;
+            t2 = ti + h;
+            f2 = -5 * (w2) + 6 * Math.pow(Math.E,t2);
+         }
+         else
+         {
+            w2 = w2;
+            t2 = t2;
+            f2 = f2;
+         }
+         
+         if (i == 2)
+         {
+            w3 = wBefore;
+            t3 = ti + h;
+            f3 = -5 * (w3) + 6 * Math.pow(Math.E,t3);
+         }
+         else
+         {
+            w3 = w3;
+            t3 = t3;
+            f3 = f3;
+         }
+         
+         i++;
+         
+         //Print out t, w, and K values.
+         System.out.println("w3 = " + w3 + ", w2 = " + w2 + ", w1 = " + w1 + ", w0 = " + w0 + ".");
+         System.out.println("t3 = " + t3 + ", t2 = " + t2 + ", t1 = " + t1 + ", t0 = " + t0 + ".");
+         System.out.println("K1 is " + K1 + ".");
+         System.out.println("K1 is " + K2 + ".");
+         System.out.println("K1 is " + K3 + ".");
+         System.out.println("K1 is " + K4 + ".\n");
+      }
+      
+      while (i < 4 || i < n)
+      {
+         //Calculate t as the process starts at the left point and moves to the right.
+         double t = a + (i+1)*h;
+         
+         //Use four-step explicit Adams-Bashforth as a predictor.
+         double wPredict = w3 + (h / 24) * ((55 * f3) - (59 * f2) + (37 * f1) - (9* f0) );
+         double fPredict = -5 * (wPredict) + 6 * Math.pow(Math.E,t);
+         
+         //Then use three-step implicite Adams-Moulton as a corrector.
+         double wCorrect = w3 + (h / 24) * ((9 * fPredict) + (19*f3) - (5 * f2) + (f1));
+         double fCorrect = -5 * (wCorrect) + 6 * Math.pow(Math.E,t);
+         
+         //Print out the approximation wCorrect at value t.
+         System.out.println("The function at t = " + t + " using Adams Fourth-Order Predictor-Corrector is " + wCorrect + ".");
+         
+         //Find the value of the exact solution at the same t.
+         double fExact = Math.pow(Math.E,-5*t) + Math.pow(Math.E,t);
+         
+         System.out.println("The actual solution is " + fExact + ".");
+         
+         //Calculate and print the absolute error.
+         double error = Math.abs(fExact - wCorrect);
+         
+         System.out.println("The absolute error is " + error + ".\n");
+         
+         //Update all current values with the next consecutive values to continue.
+         t0 = t1;
+         w0 = w1;
+         t1 = t2;
+         w1 = w2;
+         t2 = t3;
+         w2 = w3;
+         t3 = t;
+         w3 = wCorrect;
+         f0 = f1;
+         f1 = f2;
+         f2 = f3;
+         f3 = fCorrect;
+         
+         i++;
+      }
+      
+      System.exit(0);
+   }
+}
